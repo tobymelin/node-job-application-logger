@@ -134,7 +134,7 @@ function getApplicationsJSON(application_id = NaN, next) {
 
         var data = JSON.parse(data);
 
-        if (application_id && !data[application_id]) {
+        if (application_id !== NaN && !data[application_id]) {
             var err = new Error("Job application ID not found.");
             err.status = 404;
             next(err);
