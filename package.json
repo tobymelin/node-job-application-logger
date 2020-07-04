@@ -1,0 +1,31 @@
+{
+  "name": "jobapp-logger",
+  "version": "1.0.0",
+  "description": "Node.js REST API for logging job applications + status",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobymelin/node-jobapp-logger.git"
+  },
+  "keywords": [
+    "api",
+    "rest",
+    "logger"
+  ],
+  "author": "Toby M.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tobymelin/node-jobapp-logger/issues"
+  },
+  "homepage": "https://github.com/tobymelin/node-jobapp-logger#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.2.1"
+  },
+  "devDependencies": {
+    "jest": "^26.1.0"
+  }
+}
