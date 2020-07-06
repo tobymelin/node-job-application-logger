@@ -119,6 +119,7 @@ exports.add = function (req, res, next) {
         data.push(input_object);
     
         updateWallsJSON(data, next);
+        res.status(201);
         res.send(data);
     });
 }
