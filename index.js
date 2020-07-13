@@ -11,12 +11,13 @@ app.use(express.json());
 
 // Endpoints - Job Applications
 app.route('/applications')
+    .all(applications.getall)
     .get(applications.list)
     .post(applications.add);
 app.all('/applications/:id/:op?', applications.load);
 app.route('/applications/:id')
     .get(applications.view)
-    .put(applications.edit)
+    .patch(applications.edit)
     .delete(applications.delete);
 app.get('/applications/:id/view', applications.view);
 

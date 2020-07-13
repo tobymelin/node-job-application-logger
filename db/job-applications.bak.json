@@ -1,0 +1,34 @@
+[
+    {
+        "date":"21/06/2020",
+        "title":"Full-Stack Developer",
+        "company":"Numbers Ltd.",
+        "status":"Declined",
+        "updates":[
+            {
+                "date":"21/06/2020",
+                "status":"Applied"
+            },
+            {
+                "date":"23/06/2020",
+                "status":"Interview"
+            },
+            {
+                "date":"27/06/2020",
+                "status":"Declined"
+            }
+        ]
+    },
+    {
+        "date":"04/07/2020",
+        "title":"Software Engineer",
+        "company":"ABC Inc.",
+        "status":"Applied"
+    },
+    {
+        "date":"07/07/2020",
+        "title":"Test Position",
+        "company":"Test Corp.",
+        "status":"Pending"
+    }
+]

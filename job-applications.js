@@ -1,54 +1,72 @@
 const fs = require('fs');
-const { validateStatus } = require('./helpers');
+const controllers = require('./controllers');
+const { validateStatus, validateDate } = require('./helpers');
+const helpers = require('./helpers');
 
-exports.list = function (req, res, next) {
-    getApplicationsJSON(NaN, function (err, data) {
-        if (err) {
-            next(err);
-            return;
-        }
+exports.getall = async function (req, res, next) {
+    var data;
 
-        res.send(data);
-    });
+    try {
+        data = await controllers.getAllApplications();
+        req.application_data = data;
+        next()
+    }
+    catch (err) {
+        next(err);
+        return;
+    }
 }
 
 // Catchall endpoint used for fetching and filtering
 // application info.
-//
-// TODO: Change once SQL is implemented.
-exports.load = function (req, res, next) {
+exports.load = async function (req, res, next) {
     const application_id = parseInt(req.params.id);
 
     // Simple int parsing to allow for typos where user inputs number + characters.
     // May change to RegEx checking
-    if (application_id === NaN) {
+    if (isNaN(application_id)) {
         var err = new Error('A valid job application ID must be provided.');
         err.status = 400;
         next(err);
         return;
     }
 
-    getApplicationsJSON(NaN, function (err, data) {
-        if (err) {
+    try {
+        // var data = await models.getApplicationById(application_id);
+        var data = await controllers.getAllApplications();
+
+        if (!data[application_id]) {
+            var err = new Error("Job application ID not found.");
+            err.status = 404;
             next(err);
             return;
         }
 
-        req.application_data = data;
         req.application_id = application_id;
+        req.application_data = data;
         next();
-    });
+    }
+    catch (err) {
+        next(err);
+        return;
+    }
+}
+
+
+// GET requests to /applications
+exports.list = async function (req, res, next) {
+    res.send(req.application_data);
 }
 
 // GET requests to /applications/:id
 // Job application IDs are currently based on array numbering for simplicity
 exports.view = function (req, res, next) {
-    res.send(req.application_data);
+    res.send(req.application_data[req.application_id]);
 }
 
-// PUT requests to /applications/:id
+// PATCH requests to /applications/:id
 exports.edit = function (req, res, next) {
-    if (!req.body) {
+    if (!req.body || Object.keys(req.body).length == 0) {
         var err = new Error('Invalid data');
         err.status = 400;
         next(err);
@@ -58,6 +76,19 @@ exports.edit = function (req, res, next) {
     var data = req.application_data;
 
     for (key in req.body) {
+        if (key === 'status' && !helpers.validateStatus(req.body[key])) {
+            var err = new Error("Property 'status' does not contain a valid value.")
+            err.status = 400;
+            next(err);
+            return;
+        }
+        else if (key === 'date' && !helpers.validateDate(req.body[key])) {
+            var err = new Error("Property 'date' does not contain a valid value.")
+            err.status = 400;
+            next(err);
+            return;
+        }
+
         if (data[req.application_id].hasOwnProperty(key)) {
             data[req.application_id][key] = req.body[key];
         }
@@ -69,8 +100,8 @@ exports.edit = function (req, res, next) {
         }
     }
 
-    updateWallsJSON(data, next);
-    res.send(data);
+    controllers.updateApplications(data, next);
+    res.send(data[req.application_id]);
 }
 
 // DELETE requests to /applications/:id
@@ -79,7 +110,7 @@ exports.delete = function (req, res, next) {
 
     data.splice(req.application_id, 1);
     
-    updateWallsJSON(data, next);
+    controllers.updateApplications(data, next);
     res.send(data);
 }
 
@@ -109,51 +140,24 @@ exports.add = function (req, res, next) {
         next(err);
         return;
     }
+    if (!validateDate(input_object['date'])) {
+        var err = new Error("Invalid value of 'date' in job application JSON");
+        err.status = 400;
+        next(err);
+        return;
+    }
 
-    getApplicationsJSON(NaN, function (err, data) {
-        if (err) {
-            next(err);
-            return;
-        }
-        
+    try {
+        var data = req.application_data;
         data.push(input_object);
-    
-        updateWallsJSON(data, next);
+
+        controllers.updateApplications(data);
+
         res.status(201);
         res.send(data);
-    });
-}
-
-// Helper function for fetching data from a json file.
-// Will be replaced with a db interface later on.
-function getApplicationsJSON(application_id = NaN, next) {
-    fs.readFile('content/job-applications.json', function (err, data) {
-        if (err) {
-            next(err);
-            return;
-        }
-
-        var data = JSON.parse(data);
-
-        if (application_id !== NaN && !data[application_id]) {
-            var err = new Error("Job application ID not found.");
-            err.status = 404;
-            next(err);
-            return;
-        }
-        else if (application_id !== NaN && data[application_id]) {
-            data = data[application_id];
-        }
-
-        next(null, data);
-    });
-}
-
-function updateWallsJSON(data, next) {
-    fs.writeFile('content/job-applications.json', JSON.stringify(data), function (err) {
-        if (err) {
-            next(err);
-            return;
-        }
-    });
+    }
+    catch (err) {
+        next(err);
+        return;
+    }
 }

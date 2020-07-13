@@ -4,7 +4,7 @@
   "description": "Node.js REST API for logging job applications + status",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "NODE_ENV=test jest"
   },
   "repository": {
     "type": "git",
@@ -22,10 +22,10 @@
   },
   "homepage": "https://github.com/tobymelin/node-jobapp-logger#readme",
   "dependencies": {
-    "express": "^4.17.1",
-    "pg": "^8.2.1"
+    "express": "^4.17.1"
   },
   "devDependencies": {
-    "jest": "^26.1.0"
+    "jest": "^26.1.0",
+    "supertest": "^4.0.2"
   }
 }
