@@ -65,3 +65,12 @@ test('POST /applications (missing fields)', async () => {
     expect(res.status).toBe(400);
     expect(res.type).toBe('application/json');
 });
+
+test('POST /applications (empty request body)', async () => {
+    const postData = {};
+
+    const res = await request(app).post('/applications').send(postData);
+
+    expect(res.status).toBe(400);
+    expect(res.type).toBe('application/json');
+});

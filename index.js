@@ -18,6 +18,7 @@ app.all('/applications/:id/:op?', applications.load);
 app.route('/applications/:id')
     .get(applications.view)
     .patch(applications.edit)
+    .put(applications.replace)
     .delete(applications.delete);
 app.get('/applications/:id/view', applications.view);
 

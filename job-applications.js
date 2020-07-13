@@ -1,7 +1,6 @@
 const fs = require('fs');
 const controllers = require('./controllers');
-const { validateStatus, validateDate } = require('./helpers');
-const helpers = require('./helpers');
+const { validateStatus, validateDate, validateRequestBody } = require('./helpers');
 
 exports.getall = async function (req, res, next) {
     var data;
@@ -76,13 +75,13 @@ exports.edit = function (req, res, next) {
     var data = req.application_data;
 
     for (key in req.body) {
-        if (key === 'status' && !helpers.validateStatus(req.body[key])) {
+        if (key === 'status' && !validateStatus(req.body[key])) {
             var err = new Error("Property 'status' does not contain a valid value.")
             err.status = 400;
             next(err);
             return;
         }
-        else if (key === 'date' && !helpers.validateDate(req.body[key])) {
+        else if (key === 'date' && !validateDate(req.body[key])) {
             var err = new Error("Property 'date' does not contain a valid value.")
             err.status = 400;
             next(err);
@@ -104,6 +103,24 @@ exports.edit = function (req, res, next) {
     res.send(data[req.application_id]);
 }
 
+// PUT requests to /applications/:id
+exports.replace = function(req, res, next) {
+    try {
+        var data = req.application_data;
+
+        data[req.application_id] = validateRequestBody(req.body);
+
+        controllers.updateApplications(data);
+
+        res.status(200);
+        res.send(data);
+    }
+    catch (err) {
+        next(err);
+        return;
+    }
+}
+
 // DELETE requests to /applications/:id
 exports.delete = function (req, res, next) {
     var data = req.application_data;
@@ -116,40 +133,9 @@ exports.delete = function (req, res, next) {
 
 // POST requests to /applications
 exports.add = function (req, res, next) {
-    var keys = ['date', 'title', 'company', 'status']
-    var input_keys = Object.keys(req.body);
-    var input_object = {};
-
-    // Check that all required information was included in POST
-    // Transpose data from req.body into input_object to get rid of
-    // any additional, unwanted, info.
-    for (var i = 0; i < keys.length; i++) {
-        if (input_keys.indexOf(keys[i]) == -1) {
-            var err = new Error("Missing value for '" + keys[i] + "' in job application JSON");
-            err.status = 400;
-            next(err);
-            return;
-        }
-
-        input_object[keys[i]] = req.body[keys[i]];
-    }
-
-    if (!validateStatus(input_object['status'])) {
-        var err = new Error("Invalid value of 'status' in job application JSON");
-        err.status = 400;
-        next(err);
-        return;
-    }
-    if (!validateDate(input_object['date'])) {
-        var err = new Error("Invalid value of 'date' in job application JSON");
-        err.status = 400;
-        next(err);
-        return;
-    }
-
     try {
         var data = req.application_data;
-        data.push(input_object);
+        data.push(validateRequestBody(req.body));
 
         controllers.updateApplications(data);
 

@@ -18,4 +18,36 @@ function validateDate(date) {
     return false;
 }
 
-module.exports = { validateStatus, validateDate };
+function validateRequestBody(body) {
+    var keys = ['date', 'title', 'company', 'status']
+    var input_keys = Object.keys(body);
+    var input_object = {};
+
+    // Check that all required information was included in POST
+    // Transpose data from body into input_object to get rid of
+    // any additional, unwanted, info.
+    for (var i = 0; i < keys.length; i++) {
+        if (input_keys.indexOf(keys[i]) == -1) {
+            var err = new Error("Missing value for '" + keys[i] + "' in job application JSON");
+            err.status = 400;
+            throw err;
+        }
+
+        input_object[keys[i]] = body[keys[i]];
+    }
+
+    if (!validateStatus(input_object['status'])) {
+        var err = new Error("Invalid value of 'status' in job application JSON");
+        err.status = 400;
+        throw err;
+    }
+    if (!validateDate(input_object['date'])) {
+        var err = new Error("Invalid value of 'date' in job application JSON");
+        err.status = 400;
+        throw err;
+    }
+
+    return input_object;
+}
+
+module.exports = { validateStatus, validateDate, validateRequestBody };
