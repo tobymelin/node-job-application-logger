@@ -8,14 +8,41 @@ function validateStatus(status) {
 }
 
 function validateDate(date) {
-    // REALLY simple date pattern matcher for now
-    var pattern = /^[0-3]?[0-9]\/[0-1]?[0-9]\/[0-9]{4}/;
+    var pattern = /^[0-3]?[0-9]\/[0-1]?[0-9]\/[0-9]{4}$/;
 
-    if (date.match(pattern)) {
-        return true;
+    if (!date.match(pattern)) {
+        return false;
     }
 
-    return false;
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    var dateSplit = date.split('/');
+    var dd = dateSplit[0];
+    var mm = dateSplit[1];
+    var yy = dateSplit[2];
+
+    if (mm > 12) {
+        return false;
+    }
+
+    // Check for valid days, first for Feb (leap years),
+    // then for all other months
+    if (mm == 2) {
+        var febDays = 29;
+
+        if (yy % 4 != 0 || (yy % 100 == 0 && yy % 400 != 0)) {
+            febDays = 28;
+        }
+
+        if (dd > febDays) {
+            return false;
+        }
+    }
+    else if (dd > days[mm - 1]) {
+        return false;
+    }
+
+    return true;
 }
 
 function validateRequestBody(body) {
